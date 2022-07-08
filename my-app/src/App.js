@@ -1,49 +1,54 @@
-import styles from './App.css'
 import { useState } from 'react'
+import {  FiSearch } from 'react-icons/fi'
+import api from './services/api'
 
-function App(){
 
-  function cadastrarUsuario(e){
-    e.preventDefault()
-    console.log(`Usuario ${name} cadastrado com a senha ${password}`)
+function App (){
+
+  const [input, setInput] = useState('')
+  const [cep, setCep] = useState({})
+
+  async function handleSearch (){
+    if ( input === ''){
+      alert('preecha algum cep')
+      return;
+    }
+    try{
+      const response =await api.get(`${input}/json`)
+      setCep(response.data)
+      setInput("")
+    }catch{
+      alert('ops erro ao buscar')
+      setInput('')
+    }
   }
-
-  const [name, setName] = useState()
-  const [password, setPassword] = useState()
-
+  
   return(
-    <div className={styles.container}>
+    <div className='container'>
+      <h1 className='title'>Buscador CEP</h1>
 
-      <h1>Meu cadastro</h1>
-
-      <form onSubmit={cadastrarUsuario}>
-      <div>
+      <div className='containerInput'>
         <input
-        type='text'
-        placeholder='Digite seu nome'
-        onChange={(e)=>setName(e.target.value)}
+        type={"text"}
+        placeholder='Digite seu CEP...'
+        value={input}
+        onChange = {(e) => setInput(e.target.value)}
         />
+        <button className='buttonSearch'onClick={handleSearch}>
+          <FiSearch size={25} color='#FFF' />
+        </button>
       </div>
-
-      <div>
-        <input
-        type='password'
-        placeholder='Digite sua senha'
-        onChange={(e)=>setPassword(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <input
-        type='submit'
-        value='cadastrar'
-        />
-      </div>
-
-
-      </form>
+      
+      {Object.keys(cep).length > 0 && (
+        <main className='main'>
+          <h2>CEP:{cep.cep}</h2>
+          <span>Logradouro: {cep.logradouro}</span>
+          <span>Complemento: {cep.complemento}</span>
+          <span>Bairro: {cep.bairro}</span>
+          <span>Localidade: {cep.localidade} - {cep.uf}</span>
+        </main>
+      )}
     </div>
-
   );
 }
 
